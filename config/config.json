@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "get-m-365-infos-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/getM365Infos/GetM365InfosWebPart.js",
+          "manifest": "./src/webparts/getM365Infos/GetM365InfosWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "GetM365InfosWebPartStrings": "lib/webparts/getM365Infos/loc/{locale}.js"
+  }
+}
