@@ -27,14 +27,17 @@ export default class GetM365InfosWebPart extends BaseClientSideWebPart<IGetM365I
         description: this.properties.description,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        context: this.context,
+        context: this.context
       }
     );
 
     ReactDom.render(element, this.domElement);
   }
 
-  protected onInit(): Promise<void> {
+  protected async onInit(): Promise<void> {
+    
+    await super.onInit();
+
     return this._getEnvironmentMessage().then(message => {
       this._environmentMessage = message;
     });

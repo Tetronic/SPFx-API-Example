@@ -1,10 +1,3 @@
-export interface IUserInfo {
-    userName: string,
-    email: string,
-    jobTitle: string,
-    department: string;
-}
-
 export interface ISiteInfoTitle {
     title: string;
 }

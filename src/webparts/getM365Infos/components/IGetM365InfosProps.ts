@@ -4,5 +4,5 @@ export interface IGetM365InfosProps {
   description: string;
   environmentMessage: string;
   hasTeamsContext: boolean;
-  context: WebPartContext;
+  context: WebPartContext
 }

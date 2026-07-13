@@ -2,10 +2,22 @@ import * as React from 'react';
 import styles from './GetM365Infos.module.scss';
 import type { IGetM365InfosProps } from './IGetM365InfosProps';
 
-import { MSGraphClientV3 } from '@microsoft/sp-http';
-import { SPHttpClient, SPHttpClientResponse} from '@microsoft/sp-http'
+import { ISiteInfoTitle, ISiteInfoURL, IGroupInfo, IListInfo  } from '../../../interfaces/Interfaces';
+import { IUserInfo } from '../../../redux/Reducer/userSlice'
 
-import { IUserInfo, ISiteInfoTitle, ISiteInfoURL, IGroupInfo, IListInfo  } from './Interfaces';
+import { Provider } from 'react-redux';
+import { store } from '../../../redux/Store/store'
+
+import { UserInfoComponent } from '../../../components/UserInfo';
+import { SiteInfoComponent } from '../../../components/SiteInfo';
+// import { GroupsInfoComponent } from '../../../components/GroupsInfo';
+import { ListsInfoComponent } from '../../../components/ListsInfo';
+
+import { MSGraphClientFactory, SPHttpClient } from '@microsoft/sp-http';
+import { GraphService } from '../../../services/GraphAPI';
+import { SPService } from '../../../services/SharePointAPI';
+
+
 
 interface IAppState {
   userObject: IUserInfo;
@@ -17,27 +29,54 @@ interface IAppState {
 
 export default class GetM365Infos extends React.Component<IGetM365InfosProps, IAppState> {
   
+private _graphService: GraphService;
+private _spService: SPService;
+
   constructor(props: IGetM365InfosProps) {
     super(props);
 
-    this.state = { 
-      userObject: {userName: "", email: "", jobTitle: "", department: ""},
-      siteTitleObject: {title: ""},
+    //this.state = { 
+      // userObject: {userName: "", email: "", jobTitle: "", department: ""},
+      /*siteTitleObject: {title: ""},
       siteURLObject: {url: ""},
       groupObject: {groups: []},
       listObject: {lists: []}
-    };
+
+    };*/
+
+    // initialize APIs
+    const client: MSGraphClientFactory = this.props.context.msGraphClientFactory;
+    this._graphService = new GraphService(client);
+
+    const spHttpClient: SPHttpClient = this.props.context.spHttpClient;
+    const url: string = this.props.context.pageContext.web.absoluteUrl;
+    this._spService = new SPService(url, spHttpClient);
   }
 
-    public componentDidMount() {
-      this.getData();
-    }
+  public componentDidMount() {
+    this.getData();
+  }
 
-  private getData(){
+  public getData(){
     
       // GRAPH API
 
-      this.props.context.msGraphClientFactory
+      // function works, but is too fast. API delivers async later
+      // const userObject = getCurrentUserInfos(this.props.context);
+      /*console.log("NOW COMES OBJECT");
+      console.log(userObject);
+
+      this.setState({
+         userObject: 
+          {
+            displayName: userObject.displayName, 
+            mail: userObject.email, 
+            jobTitle:userObject.jobTitle, 
+            department: userObject.department
+          }
+      })*/
+
+      /*this.props.context.msGraphClientFactory
       .getClient('3')
       .then((client: MSGraphClientV3) => {
         client
@@ -46,6 +85,7 @@ export default class GetM365Infos extends React.Component<IGetM365InfosProps, IA
           .get()
           .then((user: any) =>
           {
+            // this._currentUser = user;
             console.log(user.displayName);
             console.log(user.mail);
             console.log(user.jobTitle);
@@ -55,85 +95,81 @@ export default class GetM365Infos extends React.Component<IGetM365InfosProps, IA
           .catch(error => {
             console.error("Error fetching /me from Microsoft Graph", error);
           })
-        });
+        });*/
 
         // SP API
 
-        let currentWebUrl = this.props.context.pageContext.web.absoluteUrl;
+        /*let currentWebUrl = this.props.context.pageContext.web.absoluteUrl;
 
+        // OK
         let requestUrl = currentWebUrl.concat("/_api/web/title")
 
         this.props.context.spHttpClient.get(requestUrl, SPHttpClient.configurations.v1)
             .then((response: SPHttpClientResponse) => {
                 if (response.ok) {
                     response.json().then((responseJSON) => {
-                        if (responseJSON !== null && responseJSON.value !== null)
+                        if (responseJSON!=null && responseJSON.value!=null)
                         {
-                          const title:string = responseJSON.value.toString();
+                          let title:string = responseJSON.value.toString();
                           console.log(title);
                           this.setState({ siteTitleObject: {title: title}})
                         }
                     });
                 }
-            })
-            .catch(error => {
-              console.error("Error fetching /_api/web/title from SharePoint REST API", error);
             });
 
 
+        // OK
         requestUrl = currentWebUrl.concat("/_api/web/url")
 
         this.props.context.spHttpClient.get(requestUrl, SPHttpClient.configurations.v1)
             .then((response: SPHttpClientResponse) => {
                 if (response.ok) {
                     response.json().then((responseJSON) => {
-                        if (responseJSON !== null && responseJSON.value !== null)
+                        if (responseJSON!=null && responseJSON.value!=null)
                         {
-                          const url:string = responseJSON.value.toString();
+                          let url:string = responseJSON.value.toString();
                           console.log(url);
                           this.setState({ siteURLObject: {url: url}})
                         }
                     });
                 }
-            })
-            .catch(error => {
-              console.error("Error fetching /_api/web/url from SharePoint REST API", error);
             });
 
 
+        // OK
         requestUrl = currentWebUrl.concat("/_api/Web/CurrentUser/Groups")
 
         this.props.context.spHttpClient.get(requestUrl, SPHttpClient.configurations.v1)
             .then((response: SPHttpClientResponse) => {
                 if (response.ok) {
                     response.json().then((responseJSON) => {
-                      if (responseJSON !== null && responseJSON.value !== null) 
+                      if (responseJSON!=null && responseJSON.value!=null) 
                       {
                         this.setState({ groupObject: {groups: responseJSON.value}})
 
-                        const groupArray:any[] = responseJSON.value;
+                        var groups = responseJSON.value;
+                        let groupArray:any[] = groups;
                         for (var i = 0; i < groupArray.length; i++) {
                           console.log(groupArray[i].Title);
                         }
                       }
                     });
                 }
-            })
-            .catch(error => {
-              console.error("Error fetching /_api/Web/CurrentUser/Groups from SharePoint REST API", error);
             });
 
+        // OK
         requestUrl = currentWebUrl.concat("/_api/lists")
 
         this.props.context.spHttpClient.get(requestUrl, SPHttpClient.configurations.v1)
             .then((response: SPHttpClientResponse) => {
                 if (response.ok) {
                     response.json().then((responseJSON) => {
-                        if (responseJSON !== null && responseJSON.value !== null)
+                        if (responseJSON!=null && responseJSON.value!=null)
                         {                          
                           this.setState({ listObject: {lists: responseJSON.value}})
                           
-                          const listArray:any[] = responseJSON.value;
+                          let listArray:any[] = responseJSON.value;
                           for (var i = 0; i < listArray.length; i++) {
                             console.log(listArray[i].Title);
                             console.log(listArray[i].ItemCount);
@@ -141,66 +177,34 @@ export default class GetM365Infos extends React.Component<IGetM365InfosProps, IA
                         }
                     });
                 }
-            })
-            .catch(error => {
-              console.error("Error fetching /_api/lists from SharePoint REST API", error);
-            });
+            });*/
 
     }
 
   public render(): React.ReactElement<IGetM365InfosProps> {
 
-    const userObject = this.state.userObject;
+    /*const userObject = this.state.userObject;
     const siteTitleObject = this.state.siteTitleObject;
     const siteURLObject = this.state.siteURLObject;
     const groupObject = this.state.groupObject;
-    const listObject = this.state.listObject;
-
+    const listObject = this.state.listObject;*/
+    const graphService: GraphService = this._graphService;
+    const spService: SPService = this._spService;
+    
     return (
-      <section className={`${styles.getM365Infos} }`}>
-        <div className={styles.welcome}>
-          <h2>Profile</h2>
-          <div><b>Name:</b>&nbsp;{userObject.userName}</div>
-          <div><b>E-Mail:</b>&nbsp;{userObject.email}</div>
-          <div><b>Job Title:</b>&nbsp;{userObject.jobTitle}</div>
-          <div><b>Department:</b>&nbsp;{userObject.department}</div>
-
-          <h2>Site Information</h2>
-          <div><b>Site Title:</b>&nbsp;{siteTitleObject.title}</div>
-          <div><b>URL:</b>&nbsp;{siteURLObject.url}</div>
-
-          <h2>User Groups</h2>
-          {
-            groupObject.groups.map((g: any) => {
-                return (
-                    <div>{g.Title}</div>
-                );
-            })  
-          }
-        
-          <h2>Available Lists on this Site</h2>
-
-          <div>
-            <table style={{marginLeft: 'auto', marginRight: 'auto'}}>
-              <tr>
-                <th>Title</th>
-                <th>Items</th>
-              </tr>
-              {
-                listObject.lists.map((l: any) => {
-                  return (
-                      <tr>
-                        <td>{l.Title}</td>
-                        <td>{l.ItemCount}</td>
-                      </tr>
-                  );
-                })
-              }            
-            </table>
+      <Provider store={store}>
+        <section className={`${styles.getM365Infos} }`}>
+          <div className={styles.welcome}>
+            <UserInfoComponent graphService={graphService} />
+            <SiteInfoComponent spService={spService} />
+            {
+            // <GroupsInfoComponent spService={spService} />
+            }
+            <ListsInfoComponent spService={spService} />
+            
           </div>
-
-        </div>
-      </section>
+        </section>
+      </Provider>
     );
   }
 }
