@@ -35,9 +35,7 @@ export class SPService {
     let data = await response.json();
     const title = data.value;
     const url = this._absoluteURL;
-    // return { data: data as ISiteInfo, error: null };
     return { title: title, url: url };
-    // return data;
   }
 
   public async GetGroupsInfo(): Promise<IGroupsInfo[]> {
@@ -77,25 +75,6 @@ export class SPService {
     let data = await response.json();
     return data.value;
   }
-
-
-
-    // Extract a readable error message from Graph error responses
-  /*private _extractErrorMessage(err: unknown): string {
-    if (err instanceof Error) return err.message;
-    if (typeof err === 'object' && err !== null) {
-      const graphErr = err as { body?: string; statusCode?: number };
-      if (graphErr.body) {
-        try {
-          const parsed = JSON.parse(graphErr.body);
-          return parsed?.error?.message ?? 'Unknown Graph error';
-        } catch {
-          return graphErr.body;
-        }
-      }
-    }
-    return 'Unknown error';
-  }*/
 }
 
 

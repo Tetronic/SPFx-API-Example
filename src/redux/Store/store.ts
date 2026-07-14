@@ -5,6 +5,7 @@ import groupsReducer from '../Reducer/groupsSlice'
 import listsReducer from '../Reducer/listsSlice'
 
 export const store = configureStore({
+  // define the different objects which will be saved in the store
   reducer: {
     user: userReducer,
     site: siteReducer,
