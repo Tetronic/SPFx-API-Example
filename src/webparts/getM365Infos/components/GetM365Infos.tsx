@@ -10,7 +10,7 @@ import { store } from '../../../redux/Store/store'
 
 import { UserInfoComponent } from '../../../components/UserInfo';
 import { SiteInfoComponent } from '../../../components/SiteInfo';
-// import { GroupsInfoComponent } from '../../../components/GroupsInfo';
+import { GroupsInfoComponent } from '../../../components/GroupsInfo';
 import { ListsInfoComponent } from '../../../components/ListsInfo';
 
 import { MSGraphClientFactory, SPHttpClient } from '@microsoft/sp-http';
@@ -197,11 +197,8 @@ private _spService: SPService;
           <div className={styles.welcome}>
             <UserInfoComponent graphService={graphService} />
             <SiteInfoComponent spService={spService} />
-            {
-            // <GroupsInfoComponent spService={spService} />
-            }
+            <GroupsInfoComponent spService={spService} />
             <ListsInfoComponent spService={spService} />
-            
           </div>
         </section>
       </Provider>

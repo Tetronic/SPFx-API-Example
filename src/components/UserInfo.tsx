@@ -1,7 +1,6 @@
-// import React, { useEffect } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { fetchUser, selectUser } from '../redux/Reducer/userSlice'
+import { fetchUser, selectUser, selectUserInfoStatus } from '../redux/Reducer/userSlice'
 // import { fetchUser, selectUserInfoStatus } from '../redux/features/user/userSlice'
 // import { doAnUpdateAsync } from '../redux/features/user/userSlice'
 
@@ -16,20 +15,20 @@ interface IProps {
 
 export const UserInfoComponent: React.FC<IProps> = ({graphService}) => {
   
-    // const userInfoStatus = useSelector(selectUserInfoStatus)
+    const userInfoStatus = useSelector(selectUserInfoStatus)
 
     const dispatch = useDispatch<AppDispatch>();
     
     // use effect hook is executed, when component is loaded ("onLoad()-event")
     // it will reload, if [userInfoStatus or dispatch changes their values] ("event listener")
-    /*useEffect(() => {
+    useEffect(() => {
         if (userInfoStatus === "idle") {
-            dispatch(fetchUser())
+            dispatch(fetchUser(graphService))
         }
-    }, [userInfoStatus , dispatch])*/
+    }, [userInfoStatus , dispatch])
 
     // dispatch(doAnUpdateAsync());
-    dispatch(fetchUser(graphService));
+    // dispatch(fetchUser(graphService));
 
     const userInfo = useSelector(selectUser)
     console.log("userInfo:");

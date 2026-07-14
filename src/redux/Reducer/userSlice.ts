@@ -42,28 +42,36 @@ const userSlice = createSlice({
       state.user = action.payload;
     }
   },
-  // TODO: could the async call not be inside the reducers?
   extraReducers: builder => {
-    builder.addCase(fetchUser.fulfilled, (state, action) => {
-      
-      /*console.log("32");
-      console.log(state);
-      console.log(state.user);
-      console.log(action);
-      console.log(action.payload);*/
-      // interesting: action.payload is the function "getCurrentUserInfosWithPromise"
+    builder
+      .addCase(fetchUser.pending, (state, action) => {
+        state.status = 'pending';
+      })
+      .addCase(fetchUser.fulfilled, (state, action) => {
+        
+        /*console.log("32");
+        console.log(state);
+        console.log(state.user);
+        console.log(action);
+        console.log(action.payload);*/
+        // interesting: action.payload is the function "getCurrentUserInfosWithPromise"
 
-      // this does not work (https://stackoverflow.com/questions/71999774/type-mytype-is-not-assignable-to-type-writabledraftmytype)
-      // probably because this is not an immutable action.
-      // state.user = action.payload;
-      // Object assign makes a deep copy (https://www.geeksforgeeks.org/typescript/how-to-deep-clone-an-object-preserve-its-type-with-typescript/)
-      // console.log("BEFORE");
-      // console.log(state.user);
-      Object.assign(state.user, action.payload.data) as IUserInfo
-      // console.log("AFTER");
-      // console.log(state.user );
-      // console.log("33");
-    });
+        // this does not work (https://stackoverflow.com/questions/71999774/type-mytype-is-not-assignable-to-type-writabledraftmytype)
+        // probably because this is not an immutable action.
+        // state.user = action.payload;
+        // Object assign makes a deep copy (https://www.geeksforgeeks.org/typescript/how-to-deep-clone-an-object-preserve-its-type-with-typescript/)
+        // console.log("BEFORE");
+        // console.log(state.user);
+        state.status = 'succeeded';
+        Object.assign(state.user, action.payload.data) as IUserInfo
+        // console.log("AFTER");
+        // console.log(state.user );
+        // console.log("33");
+      })
+      .addCase(fetchUser.rejected, (state, action) => {
+        state.status = 'rejected';
+        state.error = action.error.message ?? 'Unknown Error';
+      })
   }
 })
 
@@ -77,7 +85,18 @@ export const fetchUser = createAppAsyncThunk('user/fetchUser', async (graphServi
   // console.log("YES 22");
   // console.log(response);
   return response;
+},
+{
+  // condition is needed in development environment, because for react components useEffect is executed twice
+  // https://redux.js.org/tutorials/essentials/part-5-async-logic#avoiding-duplicate-fetches
+  condition(arg, thunkApi) {
+    const userInfoStatus = selectUserInfoStatus(thunkApi.getState())
+    if (userInfoStatus !== 'idle') {
+      return false
+    }
+  }
 })
+
 
 
 /*export const fetchPosts = createAppAsyncThunk(

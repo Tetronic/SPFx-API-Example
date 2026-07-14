@@ -1,9 +1,7 @@
-// import React, { useEffect } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // import { fetchUser, selectUser } from '../redux/Reducer/userSlice'
-import { fetchSite, selectSite } from '../redux/Reducer/siteSlice'
-// import { fetchUser, selectUserInfoStatus } from '../redux/features/user/userSlice'
+import { fetchSite, selectSite, selectSiteInfoStatus } from '../redux/Reducer/siteSlice'
 // import { doAnUpdateAsync } from '../redux/features/user/userSlice'
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -17,20 +15,20 @@ interface IProps {
 
 export const SiteInfoComponent: React.FC<IProps> = ({spService}) => {
   
-    // const userInfoStatus = useSelector(selectUserInfoStatus)
+    const siteInfoStatus = useSelector(selectSiteInfoStatus)
 
     const dispatch = useDispatch<AppDispatch>();
     
     // use effect hook is executed, when component is loaded ("onLoad()-event")
     // it will reload, if [userInfoStatus or dispatch changes their values] ("event listener")
-    /*useEffect(() => {
-        if (userInfoStatus === "idle") {
-            dispatch(fetchUser())
+    useEffect(() => {
+        if (siteInfoStatus === "idle") {
+            dispatch(fetchSite(spService))
         }
-    }, [userInfoStatus , dispatch])*/
+    }, [siteInfoStatus , dispatch])
 
     // dispatch(doAnUpdateAsync());
-    dispatch(fetchSite(spService));
+    // dispatch(fetchSite(spService));
 
     const siteInfo = useSelector(selectSite)
     console.log("siteInfo:");

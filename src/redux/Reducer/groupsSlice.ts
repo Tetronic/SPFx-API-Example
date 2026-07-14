@@ -36,28 +36,36 @@ const groupsSlice = createSlice({
       state.groups = action.payload;
     }
   },
-  // TODO: could the async call not be inside the reducers?
   extraReducers: builder => {
-    builder.addCase(fetchGroups.fulfilled, (state, action) => {
+    builder
+      .addCase(fetchGroups.pending, (state, action) => {
+        state.status = 'pending';
+      })
+      .addCase(fetchGroups.fulfilled, (state, action) => {
       
-      /*console.log("32");
-      console.log(state);
-      console.log(state.groups);
-      console.log(action);
-      console.log(action.payload);*/
-      // interesting: action.payload is the function "getCurrentUserInfosWithPromise"
+        /*console.log("32");
+        console.log(state);
+        console.log(state.groups);
+        console.log(action);
+        console.log(action.payload);*/
+        // interesting: action.payload is the function "getCurrentUserInfosWithPromise"
 
-      // this does not work (https://stackoverflow.com/questions/71999774/type-mytype-is-not-assignable-to-type-writabledraftmytype)
-      // probably because this is not an immutable action.
-      // state.user = action.payload;
-      // Object assign makes a deep copy (https://www.geeksforgeeks.org/typescript/how-to-deep-clone-an-object-preserve-its-type-with-typescript/)
-      /*console.log("BEFORE");
-      console.log(state.groups);*/
-      Object.assign(state.groups, action.payload)
-      /*console.log("AFTER");
-      console.log(state.groups);
-      console.log("33");*/
-    });
+        // this does not work (https://stackoverflow.com/questions/71999774/type-mytype-is-not-assignable-to-type-writabledraftmytype)
+        // probably because this is not an immutable action.
+        // state.user = action.payload;
+        // Object assign makes a deep copy (https://www.geeksforgeeks.org/typescript/how-to-deep-clone-an-object-preserve-its-type-with-typescript/)
+        /*console.log("BEFORE");
+        console.log(state.groups);*/
+        state.status = 'succeeded';
+        Object.assign(state.groups, action.payload)
+        /*console.log("AFTER");
+        console.log(state.groups);
+        console.log("33");*/
+      })
+      .addCase(fetchGroups .rejected, (state, action) => {
+        state.status = 'rejected'
+        state.error = action.error.message ?? 'Unknown Error'
+      });
   }
 })
 
@@ -75,6 +83,16 @@ export const fetchGroups = createAppAsyncThunk('groups/fetchGroups', async (SPSe
   // console.log("YES 22");
   // console.log(response);
   return response;
+},
+{
+  // condition is needed in development environment, because for react components useEffect is executed twice
+  // https://redux.js.org/tutorials/essentials/part-5-async-logic#avoiding-duplicate-fetches
+  condition(arg, thunkApi) {
+    const groupsInfoStatus = selectGroupsInfoStatus(thunkApi.getState())
+    if (groupsInfoStatus !== 'idle') {
+      return false
+    }
+  }
 })
 
 

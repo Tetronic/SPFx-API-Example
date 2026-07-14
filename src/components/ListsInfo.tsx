@@ -1,7 +1,6 @@
-// import React, { useEffect } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { fetchLists, selectLists } from '../redux/Reducer/listsSlice'
+import { fetchLists, selectLists, selectListsInfoStatus } from '../redux/Reducer/listsSlice'
 // import { fetchLists } from '../redux/Reducer/listsSlice'
 // import { fetchUser, selectUser } from '../redux/Reducer/userSlice'
 // import { fetchUser, selectUserInfoStatus } from '../redux/features/user/userSlice'
@@ -18,20 +17,20 @@ interface IProps {
 
 export const ListsInfoComponent: React.FC<IProps> = ({spService}) => {
   
-    // const userInfoStatus = useSelector(selectUserInfoStatus)
+    const listsInfoStatus = useSelector(selectListsInfoStatus)
 
     const dispatch = useDispatch<AppDispatch>();
     
     // use effect hook is executed, when component is loaded ("onLoad()-event")
     // it will reload, if [userInfoStatus or dispatch changes their values] ("event listener")
-    /*useEffect(() => {
-        if (userInfoStatus === "idle") {
-            dispatch(fetchUser())
+    useEffect(() => {
+        if (listsInfoStatus === "idle") {
+            dispatch(fetchLists(spService))
         }
-    }, [userInfoStatus , dispatch])*/
+    }, [listsInfoStatus , dispatch])
 
     // dispatch(doAnUpdateAsync());
-    dispatch(fetchLists(spService));
+    // dispatch(fetchLists(spService));
 
     const listsInfo = useSelector(selectLists)
     /*console.log("now INFOS 2:");
@@ -54,14 +53,14 @@ export const ListsInfoComponent: React.FC<IProps> = ({spService}) => {
                     <th>Items</th>
                 </tr>
                 {
-                    /*listsInfo.map((l: any) => {
+                    listsInfo.map((l: any) => {
                     return (
                         <tr>
                             <td>{l.Title}</td>
                             <td>{l.ItemCount}</td>
                         </tr>
                     );
-                    })*/
+                    })
                 }            
                 </table>
 
