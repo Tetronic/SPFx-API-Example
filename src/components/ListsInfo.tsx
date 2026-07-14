@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, CSSProperties } from 'react';
 
-import { fetchLists, selectLists, selectListsInfoStatus } from '../redux/Reducer/listsSlice'
+import { fetchLists, selectLists, selectListsInfoStatus, selectListsError } from '../redux/Reducer/listsSlice'
 
 import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch } from '../redux/Store/store'
 import { SPService } from '../services/SharePointAPI';
+
+import { RingLoader } from "react-spinners";
 
 interface IProps {
   spService: SPService;
@@ -13,6 +15,7 @@ interface IProps {
 export const ListsInfoComponent: React.FC<IProps> = ({spService}) => {
   
     const listsInfoStatus = useSelector(selectListsInfoStatus)
+    const listsError = useSelector(selectListsError)
 
     const dispatch = useDispatch<AppDispatch>();
     
@@ -24,13 +27,28 @@ export const ListsInfoComponent: React.FC<IProps> = ({spService}) => {
         }
     }, [listsInfoStatus , dispatch])
 
+    const spinnerCSSStyles: CSSProperties = {
+        display: "block",
+        margin: "0 auto",
+        borderColor: "red"
+    };
+
     const listsInfo = useSelector(selectLists)
-    return (
-    
-        <section>
-            <div>
-                <h2>Available Lists on this Site</h2>
-                <table>
+
+    let componentDynamicContent: React.ReactNode;
+
+    if (listsInfoStatus === 'pending') {
+        componentDynamicContent =
+         <RingLoader
+            cssOverride={spinnerCSSStyles}
+            loading={true}
+            size={150}
+            aria-label="Loading content"
+            data-testid="loader"
+        />
+    } else if (listsInfoStatus === 'succeeded') {
+        componentDynamicContent = 
+            <table>
                 <tr>
                     <th>Title</th>
                     <th>Items</th>
@@ -45,8 +63,18 @@ export const ListsInfoComponent: React.FC<IProps> = ({spService}) => {
                     );
                     })
                 }            
-                </table>
+            </table>
 
+    } else if (listsInfoStatus === 'rejected') {
+        componentDynamicContent = <div>{listsError}</div>
+    }
+
+    return (
+    
+        <section>
+            <div>
+                <h2>Available Lists on this Site</h2>
+                {componentDynamicContent}
             </div>
         </section>
     )

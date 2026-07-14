@@ -56,8 +56,13 @@ const listsSlice = createSlice({
   }
 })
 
+// to test loading spinner
+// const delay = () => new Promise(resolve => setTimeout(resolve, 4000));
+
 export const fetchLists = createAppAsyncThunk('lists/fetchLists', async (SPService: SPService) => {
   
+  // to test loading spinner
+  // await delay();
   const response = SPService.GetListsInfo();
   return response;
 },
@@ -81,3 +86,4 @@ export default listsSlice.reducer
 
 export const selectLists = (state: RootState) => state.lists.lists
 export const selectListsInfoStatus = (state: RootState) => state.lists.status
+export const selectListsError = (state: RootState) => state.lists.error
